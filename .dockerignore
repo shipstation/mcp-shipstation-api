@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+README.md
+TESTING.md
+SHIPSTATION_API_ANALYSIS.md
+openapi.yaml
+test-*.js
+tests/
+.env
+*.test.js
+coverage/
+.nyc_output

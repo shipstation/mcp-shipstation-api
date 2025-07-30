@@ -1,6 +1,10 @@
-# ShipStation API Server
+# ShipStation API MCP Server
 
-An MVP server for interacting with the ShipStation API v2. This server provides a simplified REST API interface to key ShipStation functionality including shipments, labels, rates, carriers, inventory, and warehouses.
+An MCP (Model Context Protocol) server for interacting with the ShipStation API v2. This server provides tools for AI assistants to interact with ShipStation functionality including shipments, labels, rates, carriers, inventory, and warehouses.
+
+The server includes both:
+- **MCP Server**: For AI assistant integration via Model Context Protocol
+- **REST API Server**: Traditional HTTP API interface (legacy)
 
 ## Features
 
@@ -25,22 +29,70 @@ An MVP server for interacting with the ShipStation API v2. This server provides 
    # Edit .env and add your ShipStation API key
    ```
 
-3. **Start the server**:
+3. **Start the MCP server**:
    ```bash
    npm start
    # or for development with auto-reload:
    npm run dev
    ```
 
-4. **Access the API**:
-   - Server runs on `http://localhost:3000`
-   - Visit root endpoint for API documentation
-   - Health check: `GET /health`
+4. **Start the REST API server** (optional):
+   ```bash
+   npm run start-express
+   # or for development:
+   npm run dev-express
+   ```
+
+## MCP Integration
+
+To use this server with an MCP-compatible AI assistant (like Claude Desktop), add the following to your MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "shipstation": {
+      "command": "node",
+      "args": ["/path/to/shipstation-api-mcp/src/mcp-server.js"],
+      "env": {
+        "SHIPSTATION_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
+```
 
 ## Environment Variables
 
 - `SHIPSTATION_API_KEY` - Your ShipStation API key (required)
-- `PORT` - Server port (default: 3000)
+- `PORT` - Server port (default: 3000, for REST API only)
+
+## MCP Tools
+
+The MCP server provides the following tools for AI assistants:
+
+### Shipment Tools
+- `get_shipments` - List shipments with optional filtering
+- `create_shipment` - Create a new shipment
+- `get_shipment_by_id` - Get shipment details by ID
+- `cancel_shipment` - Cancel a shipment
+
+### Label Tools
+- `get_labels` - List shipping labels
+- `create_label` - Create a new shipping label
+- `get_label_by_id` - Get label details by ID
+- `void_label` - Void a shipping label
+- `track_package` - Track a package using label ID
+
+### Rate Tools
+- `calculate_rates` - Calculate shipping rates for a shipment
+
+### Carrier Tools
+- `get_carriers` - List available carriers
+- `get_carrier_services` - Get services for a specific carrier
+
+### Warehouse & Inventory Tools
+- `get_warehouses` - List warehouses
+- `get_inventory` - Get inventory levels
 
 ## API Endpoints
 

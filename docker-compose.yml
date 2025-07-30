@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  shipstation-mcp:
+    build: .
+    container_name: shipstation-mcp-server
+    environment:
+      - SHIPSTATION_API_KEY=${SHIPSTATION_API_KEY}
+      - NODE_ENV=production
+    volumes:
+      # Mount source for development (optional)
+      - ./src:/app/src:ro
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - shipstation-network
+
+  # Optional: REST API service
+  shipstation-rest:
+    build: .
+    container_name: shipstation-rest-api
+    command: ["node", "src/server.js"]
+    environment:
+      - SHIPSTATION_API_KEY=${SHIPSTATION_API_KEY}
+      - PORT=3000
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - shipstation-network
+    profiles:
+      - rest-api
+
+networks:
+  shipstation-network:
+    driver: bridge
+
+# Usage examples:
+# MCP server only: docker-compose up shipstation-mcp
+# REST API only:   docker-compose --profile rest-api up shipstation-rest
+# Both services:   docker-compose --profile rest-api up
