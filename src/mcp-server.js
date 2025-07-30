@@ -226,8 +226,11 @@ class ShipStationMCPServer {
                   properties: {
                     ship_to: {
                       type: 'object',
-                      required: ['city_locality', 'state_province', 'postal_code', 'country_code'],
+                      required: ['name', 'address_line1', 'city_locality', 'state_province', 'postal_code', 'country_code'],
                       properties: {
+                        name: { type: 'string' },
+                        address_line1: { type: 'string' },
+                        address_line2: { type: 'string' },
                         city_locality: { type: 'string' },
                         state_province: { type: 'string' },
                         postal_code: { type: 'string' },
@@ -236,8 +239,11 @@ class ShipStationMCPServer {
                     },
                     ship_from: {
                       type: 'object',
-                      required: ['city_locality', 'state_province', 'postal_code', 'country_code'],
+                      required: ['name', 'address_line1', 'city_locality', 'state_province', 'postal_code', 'country_code'],
                       properties: {
+                        name: { type: 'string' },
+                        address_line1: { type: 'string' },
+                        address_line2: { type: 'string' },
                         city_locality: { type: 'string' },
                         state_province: { type: 'string' },
                         postal_code: { type: 'string' },
@@ -339,7 +345,11 @@ class ShipStationMCPServer {
             break;
           
           case 'create_shipment':
-            result = await shipstation.createShipment(args);
+            // Structure the shipment creation request properly for the API
+            const shipmentRequest = {
+              shipments: [args.shipment]
+            };
+            result = await shipstation.createShipment(shipmentRequest);
             break;
           
           case 'get_shipment_by_id':
@@ -371,7 +381,12 @@ class ShipStationMCPServer {
             break;
           
           case 'calculate_rates':
-            result = await shipstation.calculateRates(args);
+            // Structure the rate request properly for the API
+            const rateRequest = {
+              rate_options: args.rate_options || {},
+              shipment: args.shipment
+            };
+            result = await shipstation.calculateRates(rateRequest);
             break;
           
           case 'get_carriers':
