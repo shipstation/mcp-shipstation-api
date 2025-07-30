@@ -323,10 +323,87 @@ class ShipStationMCPServer {
               type: 'object',
               properties: {
                 sku: { type: 'string', description: 'Filter by SKU' },
-                warehouse_id: { type: 'string', description: 'Filter by warehouse ID' },
-                page: { type: 'number', description: 'Page number for pagination' },
-                page_size: { type: 'number', description: 'Number of items per page' }
+                inventory_warehouse_id: { type: 'string', description: 'Filter by inventory warehouse ID' },
+                inventory_location_id: { type: 'string', description: 'Filter by inventory location ID' },
+                group_by: { type: 'string', description: 'Group by warehouse or location', enum: ['warehouse', 'location'] },
+                limit: { type: 'number', description: 'Number of items to return' }
               }
+            }
+          },
+          {
+            name: 'update_inventory',
+            description: 'Update SKU stock levels',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                transaction_type: { 
+                  type: 'string', 
+                  description: 'Type of update (increment, decrement, adjust, modify)',
+                  enum: ['increment', 'decrement', 'adjust', 'modify']
+                },
+                sku: { type: 'string', description: 'SKU to update' },
+                quantity: { type: 'number', description: 'Quantity to update' },
+                inventory_location_id: { type: 'string', description: 'Inventory location ID' },
+                cost: {
+                  type: 'object',
+                  properties: {
+                    amount: { type: 'number' },
+                    currency: { type: 'string' }
+                  },
+                  description: 'Cost information'
+                },
+                condition: {
+                  type: 'string',
+                  enum: ['sellable', 'damaged', 'expired', 'qa_hold'],
+                  description: 'Inventory condition'
+                },
+                reason: { type: 'string', description: 'Reason for update' },
+                notes: { type: 'string', description: 'Additional notes' }
+              },
+              required: ['transaction_type', 'sku', 'quantity', 'inventory_location_id']
+            }
+          },
+          {
+            name: 'get_inventory_warehouses',
+            description: 'Get inventory warehouses',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                limit: { type: 'number', description: 'Number of items to return' }
+              }
+            }
+          },
+          {
+            name: 'create_inventory_warehouse',
+            description: 'Create a new inventory warehouse',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                name: { type: 'string', description: 'Warehouse name' }
+              },
+              required: ['name']
+            }
+          },
+          {
+            name: 'get_inventory_locations',
+            description: 'Get inventory locations',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                limit: { type: 'number', description: 'Number of items to return' }
+              }
+            }
+          },
+          {
+            name: 'create_inventory_location',
+            description: 'Create a new inventory location',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                name: { type: 'string', description: 'Location name' },
+                inventory_warehouse_id: { type: 'string', description: 'Warehouse ID' }
+              },
+              required: ['name', 'inventory_warehouse_id']
             }
           }
         ]
@@ -403,6 +480,26 @@ class ShipStationMCPServer {
           
           case 'get_inventory':
             result = await shipstation.getInventoryLevels(args || {});
+            break;
+          
+          case 'update_inventory':
+            result = await shipstation.updateInventory(args);
+            break;
+          
+          case 'get_inventory_warehouses':
+            result = await shipstation.getInventoryWarehouses(args || {});
+            break;
+          
+          case 'create_inventory_warehouse':
+            result = await shipstation.createInventoryWarehouse(args);
+            break;
+          
+          case 'get_inventory_locations':
+            result = await shipstation.getInventoryLocations(args || {});
+            break;
+          
+          case 'create_inventory_location':
+            result = await shipstation.createInventoryLocation(args);
             break;
           
           default:
