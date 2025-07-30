@@ -27,6 +27,7 @@ The server includes both:
    ```bash
    cp .env.example .env
    # Edit .env and add your ShipStation API key
+   # NEVER commit .env to git - it contains sensitive API keys
    ```
 
 3. **Start the MCP server**:
@@ -65,6 +66,8 @@ To use this server with an MCP-compatible AI assistant (like Claude Desktop), ad
 
 - `SHIPSTATION_API_KEY` - Your ShipStation API key (required)
 - `PORT` - Server port (default: 3000, for REST API only)
+
+⚠️ **Security Note**: Never commit your `.env` file to git. The `.env` file contains sensitive API keys and should only exist locally or in secure deployment environments.
 
 ## MCP Tools
 
@@ -234,6 +237,19 @@ npm run test:watch
 ```
 
 **Note:** Integration and E2E tests require `SHIPSTATION_API_KEY` environment variable.
+
+## Security
+
+🔒 **API Key Protection**: 
+- The `.env` file is automatically ignored by git (see `.gitignore`)
+- Never commit API keys to version control
+- Use environment variables in production deployments
+- Rotate API keys if accidentally exposed
+
+🐳 **Docker Security**:
+- Containers run as non-root user (`mcp`)
+- API keys passed via environment variables only
+- No secrets baked into images
 
 ## Requirements
 
