@@ -84,22 +84,28 @@ The server provides 14 MCP tools covering core ShipStation functionality:
 
 ## Running Tests
 
-### Manual Testing
-```bash
-# Test tool listing
-node test-simple.js
+The project now uses organized test suites:
 
-# Test tool execution  
-node test-tool-call.js
+### All Tests
+```bash
+npm test                  # Run all tests (unit + integration if API key available)
 ```
 
-### Automated Testing
+### Specific Test Types
 ```bash
-# Run all tests
-npm test
+npm run test:unit         # Unit tests (fast, no API key needed)
+npm run test:integration  # Integration tests (requires SHIPSTATION_API_KEY)
+npm run test:e2e         # End-to-end Docker tests
+npm run test:watch       # Watch mode for development
+```
 
-# Alternative Jest tests (if configured)
-npm run test:jest
+### Test Structure
+```
+tests/
+├── unit/               # Unit tests (no external dependencies)
+├── integration/        # Integration tests (requires API key) 
+├── e2e/               # End-to-end tests (requires Docker)
+└── run-tests.js       # Test runner script
 ```
 
 ## Usage Examples
