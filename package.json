@@ -9,10 +9,11 @@
     "start-express": "node src/server.js",
     "dev": "nodemon src/mcp-server.js",
     "dev-express": "nodemon src/server.js",
-    "test": "node --test tests/mcp-server-node.test.js",
-    "test:jest": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test": "node tests/run-tests.js",
+    "test:unit": "node tests/run-tests.js unit",
+    "test:integration": "node tests/run-tests.js integration",
+    "test:e2e": "node tests/run-tests.js e2e",
+    "test:watch": "nodemon --exec \"npm test\" --watch tests --watch src"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.0",
@@ -23,7 +24,6 @@
     "helmet": "^7.1.0"
   },
   "devDependencies": {
-    "jest": "^30.0.5",
     "nodemon": "^3.0.1"
   },
   "keywords": [
@@ -36,15 +36,5 @@
     "server"
   ],
   "author": "",
-  "license": "MIT",
-  "jest": {
-    "preset": "default",
-    "extensionsToTreatAsEsm": [".js"],
-    "globals": {
-      "__NODE_OPTIONS__": "--experimental-vm-modules"
-    },
-    "testEnvironment": "node",
-    "testMatch": ["**/tests/**/*.test.js"],
-    "transform": {}
-  }
+  "license": "MIT"
 }

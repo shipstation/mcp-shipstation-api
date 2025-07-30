@@ -216,10 +216,30 @@ const response = await fetch('http://localhost:3000/api/rates', {
 });
 ```
 
+## Testing
+
+The project includes comprehensive tests organized by category:
+
+```bash
+# Run all tests
+npm test
+
+# Run specific test types
+npm run test:unit          # Unit tests (fast, no API key needed)
+npm run test:integration   # Integration tests (requires API key)  
+npm run test:e2e          # End-to-end Docker tests
+
+# Watch mode for development
+npm run test:watch
+```
+
+**Note:** Integration and E2E tests require `SHIPSTATION_API_KEY` environment variable.
+
 ## Requirements
 
 - Node.js 16+
 - ShipStation API key (Scale-Gold plan or higher)
+- Docker (optional, for containerized deployment)
 
 ## Notes
 
@@ -228,3 +248,4 @@ const response = await fetch('http://localhost:3000/api/rates', {
 - All endpoints proxy to the official ShipStation API v2
 - File downloads are supported for labels, manifests, and other documents
 - CORS is enabled for cross-origin requests
+- Comprehensive test suite with unit, integration, and E2E tests

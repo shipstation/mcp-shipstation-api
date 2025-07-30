@@ -4,11 +4,10 @@ npm-debug.log
 .gitignore
 README.md
 TESTING.md
+DOCKER-TESTING.md
 SHIPSTATION_API_ANALYSIS.md
 openapi.yaml
-test-*.js
 tests/
 .env
-*.test.js
 coverage/
 .nyc_output
