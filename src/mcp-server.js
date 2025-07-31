@@ -66,6 +66,12 @@ class ShipStationMCPServer {
                     service_code: { type: 'string', description: 'Service code' },
                     external_shipment_id: { type: 'string', description: 'External shipment ID' },
                     ship_date: { type: 'string', description: 'Ship date (YYYY-MM-DD)' },
+                    create_sales_order: { type: 'boolean', description: 'Whether to create a sales order for this shipment', default: false },
+                    store_id: { type: 'string', description: 'Store ID associated with the shipment' },
+                    notes_from_buyer: { type: 'string', description: 'Notes from the buyer' },
+                    notes_for_gift: { type: 'string', description: 'Gift notes' },
+                    is_gift: { type: 'boolean', description: 'Indicates if the shipment is a gift', default: false },
+                    validate_address: { type: 'string', description: 'Address validation option', enum: ['no_validation', 'validate_only', 'validate_and_clean'] },
                     ship_to: {
                       type: 'object',
                       required: ['name', 'address_line1', 'city_locality', 'state_province', 'postal_code', 'country_code'],
@@ -115,6 +121,22 @@ class ShipStationMCPServer {
                           }
                         }
                       }
+                    },
+                    items: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          name: { type: 'string', description: 'Item name' },
+                          sku: { type: 'string', description: 'Item SKU' },
+                          quantity: { type: 'number', description: 'Item quantity' },
+                          unit_price: { 
+                            type: 'number', 
+                            description: 'Unit price of the item' 
+                          }
+                        }
+                      },
+                      description: 'Items in the shipment (useful for sales orders)'
                     }
                   }
                 }
@@ -166,7 +188,82 @@ class ShipStationMCPServer {
               properties: {
                 shipment: {
                   type: 'object',
-                  description: 'Shipment data for the label'
+                  required: ['ship_to', 'ship_from', 'packages'],
+                  properties: {
+                    carrier_id: { type: 'string', description: 'Carrier ID' },
+                    service_code: { type: 'string', description: 'Service code' },
+                    external_shipment_id: { type: 'string', description: 'External shipment ID' },
+                    ship_date: { type: 'string', description: 'Ship date (YYYY-MM-DD)' },
+                    create_sales_order: { type: 'boolean', description: 'Whether to create a sales order for this label', default: false },
+                    store_id: { type: 'string', description: 'Store ID associated with the label' },
+                    validate_address: { type: 'string', description: 'Address validation option', enum: ['no_validation', 'validate_only', 'validate_and_clean'] },
+                    ship_to: {
+                      type: 'object',
+                      required: ['name', 'address_line1', 'city_locality', 'state_province', 'postal_code', 'country_code'],
+                      properties: {
+                        name: { type: 'string' },
+                        address_line1: { type: 'string' },
+                        address_line2: { type: 'string' },
+                        city_locality: { type: 'string' },
+                        state_province: { type: 'string' },
+                        postal_code: { type: 'string' },
+                        country_code: { type: 'string' }
+                      }
+                    },
+                    ship_from: {
+                      type: 'object',
+                      required: ['name', 'address_line1', 'city_locality', 'state_province', 'postal_code', 'country_code'],
+                      properties: {
+                        name: { type: 'string' },
+                        address_line1: { type: 'string' },
+                        address_line2: { type: 'string' },
+                        city_locality: { type: 'string' },
+                        state_province: { type: 'string' },
+                        postal_code: { type: 'string' },
+                        country_code: { type: 'string' }
+                      }
+                    },
+                    packages: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          weight: {
+                            type: 'object',
+                            properties: {
+                              value: { type: 'number' },
+                              unit: { type: 'string', enum: ['pound', 'ounce', 'kilogram', 'gram'] }
+                            }
+                          },
+                          dimensions: {
+                            type: 'object',
+                            properties: {
+                              unit: { type: 'string', enum: ['inch', 'centimeter'] },
+                              length: { type: 'number' },
+                              width: { type: 'number' },
+                              height: { type: 'number' }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    items: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          name: { type: 'string', description: 'Item name' },
+                          sku: { type: 'string', description: 'Item SKU' },
+                          quantity: { type: 'number', description: 'Item quantity' },
+                          unit_price: { 
+                            type: 'number', 
+                            description: 'Unit price of the item' 
+                          }
+                        }
+                      },
+                      description: 'Items in the label (useful for sales orders)'
+                    }
+                  }
                 },
                 label_format: { type: 'string', description: 'Label format (pdf, png, zpl)', enum: ['pdf', 'png', 'zpl'] },
                 label_layout: { type: 'string', description: 'Label layout' }
