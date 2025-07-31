@@ -647,6 +647,58 @@ class ShipStationMCPServer {
               },
               required: ['batch_id']
             }
+          },
+          // Manifest tools
+          {
+            name: 'get_manifests',
+            description: 'List manifests with optional filtering parameters',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                page: { type: 'number', description: 'Page number for pagination' },
+                page_size: { type: 'number', description: 'Number of items per page' },
+                carrier_id: { type: 'string', description: 'Filter by carrier ID' },
+                warehouse_id: { type: 'string', description: 'Filter by warehouse ID' },
+                ship_date_start: { type: 'string', description: 'Filter by ship date start (YYYY-MM-DD)' },
+                ship_date_end: { type: 'string', description: 'Filter by ship date end (YYYY-MM-DD)' },
+                created_at_start: { type: 'string', description: 'Filter by creation date start (YYYY-MM-DD)' },
+                created_at_end: { type: 'string', description: 'Filter by creation date end (YYYY-MM-DD)' }
+              }
+            }
+          },
+          {
+            name: 'create_manifest',
+            description: 'Create a new manifest for end-of-day processing',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                carrier_id: { type: 'string', description: 'Carrier ID for the manifest' },
+                warehouse_id: { type: 'string', description: 'Warehouse ID for the manifest' },
+                ship_date: { type: 'string', description: 'Ship date for the manifest (YYYY-MM-DD)' },
+                label_ids: { 
+                  type: 'array', 
+                  items: { type: 'string' },
+                  description: 'Array of label IDs to include in the manifest'
+                },
+                excluded_label_ids: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'Array of label IDs to exclude from the manifest'
+                }
+              },
+              required: ['carrier_id']
+            }
+          },
+          {
+            name: 'get_manifest_by_id',
+            description: 'Get a manifest by its ID',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                manifest_id: { type: 'string', description: 'The manifest ID' }
+              },
+              required: ['manifest_id']
+            }
           }
         ]
       };
@@ -792,6 +844,19 @@ class ShipStationMCPServer {
             if (args.label_format) processData.label_format = args.label_format;
             if (args.label_layout) processData.label_layout = args.label_layout;
             result = await shipstation.processBatch(args.batch_id, processData);
+            break;
+          
+          // Manifest operations
+          case 'get_manifests':
+            result = await shipstation.getManifests(args || {});
+            break;
+          
+          case 'create_manifest':
+            result = await shipstation.createManifest(args);
+            break;
+          
+          case 'get_manifest_by_id':
+            result = await shipstation.getManifestById(args.manifest_id);
             break;
           
           default:

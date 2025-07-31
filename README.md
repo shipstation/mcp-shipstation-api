@@ -114,6 +114,11 @@ The MCP server provides the following tools for AI assistants:
 - `get_batch_errors` - Get validation errors for a batch
 - `process_batch` - Process a batch to create labels
 
+### Manifest Tools
+- `get_manifests` - List manifests with filtering parameters
+- `create_manifest` - Create a new manifest for end-of-day processing
+- `get_manifest_by_id` - Get manifest details by ID
+
 ## API Endpoints
 
 ### Shipments
