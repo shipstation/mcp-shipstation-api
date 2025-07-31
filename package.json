@@ -6,9 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/mcp-server.js",
-    "start-express": "node src/server.js",
     "dev": "nodemon src/mcp-server.js",
-    "dev-express": "nodemon src/server.js",
     "test": "node tests/run-tests.js",
     "test:unit": "node tests/run-tests.js unit",
     "test:integration": "node tests/run-tests.js integration",
@@ -18,22 +16,18 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.0",
     "axios": "^1.6.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "helmet": "^7.1.0"
+    "dotenv": "^16.3.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
   "keywords": [
     "shipstation",
-    "api",
     "shipping",
     "labels",
     "mcp",
     "model-context-protocol",
-    "server"
+    "mcp-server"
   ],
   "author": "",
   "license": "MIT"
