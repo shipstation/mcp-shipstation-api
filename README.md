@@ -65,8 +65,10 @@ The MCP server provides the following tools for AI assistants:
 ### Shipment Tools
 - `get_shipments` - List shipments with optional filtering
 - `create_shipment` - Create a new shipment
+- `create_shipments_bulk` - Create multiple shipments in a single API call for bulk processing
 - `get_shipment_by_id` - Get shipment details by ID
 - `get_shipment_by_external_id` - Get shipment by external ID
+- `update_shipment` - Update a shipment by its ID
 - `cancel_shipment` - Cancel a shipment
 - `get_shipment_rates` - Get rates for an existing shipment
 - `tag_shipment` - Add a tag to a shipment

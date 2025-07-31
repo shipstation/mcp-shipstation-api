@@ -19,7 +19,14 @@ class ShipStationClient {
       (error) => {
         if (error.response) {
           const { status, data } = error.response;
-          throw new Error(`ShipStation API Error ${status}: ${data.message || error.message}`);
+          console.error('ShipStation API Error Details:', {
+            status,
+            data,
+            url: error.config?.url,
+            method: error.config?.method,
+            requestData: error.config?.data
+          });
+          throw new Error(`ShipStation API Error ${status}: ${JSON.stringify(data)}`);
         }
         throw error;
       }
@@ -34,6 +41,11 @@ class ShipStationClient {
 
   async createShipment(shipmentData) {
     const response = await this.client.post('/v2/shipments', shipmentData);
+    return response.data;
+  }
+
+  async updateShipment(shipmentId, shipmentData) {
+    const response = await this.client.put(`/v2/shipments/${shipmentId}`, shipmentData);
     return response.data;
   }
 

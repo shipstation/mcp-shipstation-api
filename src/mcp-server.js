@@ -212,6 +212,239 @@ class ShipStationMCPServer {
               required: ['shipment_id', 'tag_name']
             }
           },
+          {
+            name: 'create_shipments_bulk',
+            description: 'Create multiple shipments in a single API call for bulk processing',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                shipments: {
+                  type: 'array',
+                  minItems: 1,
+                  maxItems: 100,
+                  items: {
+                    type: 'object',
+                    required: ['ship_to', 'ship_from', 'packages'],
+                    properties: {
+                      carrier_id: { type: 'string', description: 'Carrier ID' },
+                      service_code: { type: 'string', description: 'Service code' },
+                      external_shipment_id: { type: 'string', description: 'External shipment ID' },
+                      ship_date: { type: 'string', description: 'Ship date (YYYY-MM-DD)' },
+                      create_sales_order: { type: 'boolean', description: 'Whether to create a sales order for this shipment', default: false },
+                      store_id: { type: 'string', description: 'Store ID associated with the shipment' },
+                      notes_from_buyer: { type: 'string', description: 'Notes from the buyer' },
+                      notes_for_gift: { type: 'string', description: 'Gift notes' },
+                      is_gift: { type: 'boolean', description: 'Indicates if the shipment is a gift', default: false },
+                      validate_address: { type: 'string', description: 'Address validation option', enum: ['no_validation', 'validate_only', 'validate_and_clean'] },
+                      ship_to: {
+                        type: 'object',
+                        required: ['name', 'address_line1', 'city_locality', 'state_province', 'postal_code', 'country_code'],
+                        properties: {
+                          name: { type: 'string' },
+                          address_line1: { type: 'string' },
+                          address_line2: { type: 'string' },
+                          city_locality: { type: 'string' },
+                          state_province: { type: 'string' },
+                          postal_code: { type: 'string' },
+                          country_code: { type: 'string' }
+                        }
+                      },
+                      ship_from: {
+                        type: 'object',
+                        required: ['name', 'address_line1', 'city_locality', 'state_province', 'postal_code', 'country_code'],
+                        properties: {
+                          name: { type: 'string' },
+                          address_line1: { type: 'string' },
+                          address_line2: { type: 'string' },
+                          city_locality: { type: 'string' },
+                          state_province: { type: 'string' },
+                          postal_code: { type: 'string' },
+                          country_code: { type: 'string' }
+                        }
+                      },
+                      packages: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            weight: {
+                              type: 'object',
+                              properties: {
+                                value: { type: 'number' },
+                                unit: { type: 'string', enum: ['pound', 'ounce', 'kilogram', 'gram'] }
+                              }
+                            },
+                            dimensions: {
+                              type: 'object',
+                              properties: {
+                                unit: { type: 'string', enum: ['inch', 'centimeter'] },
+                                length: { type: 'number' },
+                                width: { type: 'number' },
+                                height: { type: 'number' }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      items: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            name: { type: 'string', description: 'Item name' },
+                            sku: { type: 'string', description: 'Item SKU' },
+                            quantity: { type: 'number', description: 'Item quantity' },
+                            unit_price: { 
+                              type: 'number', 
+                              description: 'Unit price of the item' 
+                            }
+                          }
+                        },
+                        description: 'Items in the shipment (useful for sales orders)'
+                      }
+                    }
+                  },
+                  description: 'Array of shipments to create (1-100 shipments)'
+                }
+              },
+              required: ['shipments']
+            }
+          },
+          {
+            name: 'update_shipment',
+            description: 'Update a shipment by its ID',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                shipment_id: { type: 'string', description: 'The shipment ID to update' },
+                shipment_data: {
+                  type: 'object',
+                  properties: {
+                    carrier_id: { type: 'string', description: 'The carrier account that is billed for the shipping charges' },
+                    service_code: { type: 'string', description: 'The carrier service used to ship the package' },
+                    shipping_rule_id: { type: 'string', description: 'ID of the shipping rule for automation' },
+                    external_order_id: { type: 'string', description: 'ID that the Order Source assigned' },
+                    external_shipment_id: { type: 'string', description: 'A unique user-defined key to identify a shipment' },
+                    shipment_number: { type: 'string', description: 'A non-unique user-defined number used to identify a shipment' },
+                    ship_date: { type: 'string', description: 'The date that the shipment was (or will be) shipped (YYYY-MM-DD)' },
+                    warehouse_id: { type: 'string', description: 'The warehouse that the shipment is being shipped from' },
+                    is_return: { type: 'boolean', description: 'An optional indicator if the shipment is intended to be a return', default: false },
+                    confirmation: { 
+                      type: 'string', 
+                      description: 'The type of delivery confirmation required',
+                      enum: ['none', 'delivery', 'signature', 'adult_signature', 'direct_signature', 'delivery_mailed', 'verbal_confirmation'],
+                      default: 'none'
+                    },
+                    insurance_provider: { 
+                      type: 'string', 
+                      description: 'The insurance provider to use',
+                      enum: ['none', 'shipsurance', 'carrier', 'third_party'],
+                      default: 'none'
+                    },
+                    order_source_code: { 
+                      type: 'string', 
+                      description: 'The order source',
+                      enum: ['amazon_ca', 'amazon_us', 'brightpearl', 'channel_advisor', 'cratejoy', 'ebay', 'etsy', 'jane', 'groupon_goods', 'magento', 'paypal', 'seller_active', 'shopify', 'stitch_labs', 'squarespace', 'three_dcart', 'tophatter', 'walmart', 'woo_commerce', 'volusion']
+                    },
+                    comparison_rate_type: { type: 'string', description: 'Calculate a rate with a different ratecard' },
+                    validate_address: { 
+                      type: 'string', 
+                      description: 'Address validation option',
+                      enum: ['no_validation', 'validate_only', 'validate_and_clean'],
+                      default: 'no_validation'
+                    },
+                    ship_to: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string' },
+                        address_line1: { type: 'string' },
+                        address_line2: { type: 'string' },
+                        city_locality: { type: 'string' },
+                        state_province: { type: 'string' },
+                        postal_code: { type: 'string' },
+                        country_code: { type: 'string' }
+                      }
+                    },
+                    ship_from: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string' },
+                        address_line1: { type: 'string' },
+                        address_line2: { type: 'string' },
+                        city_locality: { type: 'string' },
+                        state_province: { type: 'string' },
+                        postal_code: { type: 'string' },
+                        country_code: { type: 'string' }
+                      }
+                    },
+                    return_to: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string' },
+                        address_line1: { type: 'string' },
+                        address_line2: { type: 'string' },
+                        city_locality: { type: 'string' },
+                        state_province: { type: 'string' },
+                        postal_code: { type: 'string' },
+                        country_code: { type: 'string' }
+                      }
+                    },
+                    packages: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          weight: {
+                            type: 'object',
+                            properties: {
+                              value: { type: 'number' },
+                              unit: { type: 'string', enum: ['pound', 'ounce', 'kilogram', 'gram'] }
+                            }
+                          },
+                          dimensions: {
+                            type: 'object',
+                            properties: {
+                              unit: { type: 'string', enum: ['inch', 'centimeter'] },
+                              length: { type: 'number' },
+                              width: { type: 'number' },
+                              height: { type: 'number' }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    items: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          name: { type: 'string', description: 'Item name' },
+                          sku: { type: 'string', description: 'Item SKU' },
+                          quantity: { type: 'number', description: 'Item quantity' },
+                          unit_price: { type: 'number', description: 'Unit price of the item' }
+                        }
+                      },
+                      description: 'Items in the shipment'
+                    },
+                    customs: {
+                      type: 'object',
+                      description: 'Customs information for international shipments'
+                    },
+                    advanced_options: {
+                      type: 'object',
+                      description: 'Advanced shipment options'
+                    },
+                    tax_identifiers: {
+                      type: 'array',
+                      items: { type: 'object' },
+                      description: 'Tax identifiers'
+                    }
+                  }
+                }
+              },
+              required: ['shipment_id', 'shipment_data']
+            }
+          },
           // Label tools
           {
             name: 'get_labels',
@@ -1008,6 +1241,14 @@ class ShipStationMCPServer {
             result = await shipstation.createShipment(shipmentRequest);
             break;
           
+          case 'create_shipments_bulk':
+            // Pass through the shipments array directly as the API expects it
+            const bulkRequest = {
+              shipments: args.shipments
+            };
+            result = await shipstation.createShipment(bulkRequest);
+            break;
+          
           case 'get_shipment_by_id':
             result = await shipstation.getShipmentById(args.shipment_id);
             break;
@@ -1030,6 +1271,10 @@ class ShipStationMCPServer {
           
           case 'untag_shipment':
             result = await shipstation.untagShipment(args.shipment_id, args.tag_name);
+            break;
+          
+          case 'update_shipment':
+            result = await shipstation.updateShipment(args.shipment_id, args.shipment_data);
             break;
           
           case 'get_labels':
