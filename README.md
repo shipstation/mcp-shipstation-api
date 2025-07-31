@@ -96,6 +96,23 @@ The MCP server provides the following tools for AI assistants:
 ### Warehouse & Inventory Tools
 - `get_warehouses` - List warehouses
 - `get_inventory` - Get inventory levels
+- `update_inventory` - Update SKU stock levels
+- `get_inventory_warehouses` - Get inventory warehouses
+- `create_inventory_warehouse` - Create a new inventory warehouse
+- `get_inventory_locations` - Get inventory locations
+- `create_inventory_location` - Create a new inventory location
+
+### Batch Tools
+- `get_batches` - List batches with filtering parameters
+- `create_batch` - Create a new batch for bulk label processing
+- `get_batch_by_id` - Get batch details by ID
+- `get_batch_by_external_id` - Get batch by external batch ID
+- `update_batch` - Update batch information
+- `delete_batch` - Delete a batch
+- `add_to_batch` - Add shipments to an existing batch
+- `remove_from_batch` - Remove items from a batch
+- `get_batch_errors` - Get validation errors for a batch
+- `process_batch` - Process a batch to create labels
 
 ## API Endpoints
 

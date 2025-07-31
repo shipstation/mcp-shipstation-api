@@ -502,6 +502,151 @@ class ShipStationMCPServer {
               },
               required: ['name', 'inventory_warehouse_id']
             }
+          },
+          // Batch tools
+          {
+            name: 'get_batches',
+            description: 'List batches with optional filtering parameters',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                page: { type: 'number', description: 'Page number for pagination' },
+                page_size: { type: 'number', description: 'Number of items per page' },
+                batch_number: { type: 'string', description: 'Filter by batch number' },
+                external_batch_id: { type: 'string', description: 'Filter by external batch ID' },
+                batch_status: { type: 'string', description: 'Filter by batch status' }
+              }
+            }
+          },
+          {
+            name: 'create_batch',
+            description: 'Create a new batch for bulk label processing',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                batch_number: { type: 'string', description: 'Batch number' },
+                external_batch_id: { type: 'string', description: 'External batch ID' },
+                batch_notes: { type: 'string', description: 'Notes for the batch' }
+              }
+            }
+          },
+          {
+            name: 'get_batch_by_id',
+            description: 'Get a batch by its ID',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                batch_id: { type: 'string', description: 'The batch ID' }
+              },
+              required: ['batch_id']
+            }
+          },
+          {
+            name: 'get_batch_by_external_id',
+            description: 'Get a batch by its external ID',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                external_batch_id: { type: 'string', description: 'The external batch ID' }
+              },
+              required: ['external_batch_id']
+            }
+          },
+          {
+            name: 'update_batch',
+            description: 'Update batch information',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                batch_id: { type: 'string', description: 'The batch ID' },
+                batch_data: {
+                  type: 'object',
+                  properties: {
+                    batch_number: { type: 'string', description: 'Batch number' },
+                    external_batch_id: { type: 'string', description: 'External batch ID' },
+                    batch_notes: { type: 'string', description: 'Notes for the batch' }
+                  }
+                }
+              },
+              required: ['batch_id', 'batch_data']
+            }
+          },
+          {
+            name: 'delete_batch',
+            description: 'Delete a batch',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                batch_id: { type: 'string', description: 'The batch ID to delete' }
+              },
+              required: ['batch_id']
+            }
+          },
+          {
+            name: 'add_to_batch',
+            description: 'Add shipments to an existing batch',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                batch_id: { type: 'string', description: 'The batch ID' },
+                shipment_ids: { 
+                  type: 'array', 
+                  items: { type: 'string' },
+                  description: 'Array of shipment IDs to add to the batch'
+                },
+                rate_ids: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'Array of rate IDs to add to the batch'
+                }
+              },
+              required: ['batch_id']
+            }
+          },
+          {
+            name: 'remove_from_batch',
+            description: 'Remove items from a batch',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                batch_id: { type: 'string', description: 'The batch ID' },
+                shipment_ids: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'Array of shipment IDs to remove from the batch'
+                },
+                rate_ids: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'Array of rate IDs to remove from the batch'
+                }
+              },
+              required: ['batch_id']
+            }
+          },
+          {
+            name: 'get_batch_errors',
+            description: 'Get validation errors for a batch',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                batch_id: { type: 'string', description: 'The batch ID' }
+              },
+              required: ['batch_id']
+            }
+          },
+          {
+            name: 'process_batch',
+            description: 'Process a batch to create labels for all items',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                batch_id: { type: 'string', description: 'The batch ID' },
+                label_format: { type: 'string', description: 'Label format', enum: ['pdf', 'png', 'zpl'] },
+                label_layout: { type: 'string', description: 'Label layout' }
+              },
+              required: ['batch_id']
+            }
           }
         ]
       };
@@ -597,6 +742,56 @@ class ShipStationMCPServer {
           
           case 'create_inventory_location':
             result = await shipstation.createInventoryLocation(args);
+            break;
+          
+          // Batch operations
+          case 'get_batches':
+            result = await shipstation.getBatches(args || {});
+            break;
+          
+          case 'create_batch':
+            result = await shipstation.createBatch(args);
+            break;
+          
+          case 'get_batch_by_id':
+            result = await shipstation.getBatchById(args.batch_id);
+            break;
+          
+          case 'get_batch_by_external_id':
+            result = await shipstation.getBatchByExternalId(args.external_batch_id);
+            break;
+          
+          case 'update_batch':
+            result = await shipstation.updateBatch(args.batch_id, args.batch_data);
+            break;
+          
+          case 'delete_batch':
+            result = await shipstation.deleteBatch(args.batch_id);
+            break;
+          
+          case 'add_to_batch':
+            const addData = {};
+            if (args.shipment_ids) addData.shipment_ids = args.shipment_ids;
+            if (args.rate_ids) addData.rate_ids = args.rate_ids;
+            result = await shipstation.addToBatch(args.batch_id, addData);
+            break;
+          
+          case 'remove_from_batch':
+            const removeData = {};
+            if (args.shipment_ids) removeData.shipment_ids = args.shipment_ids;
+            if (args.rate_ids) removeData.rate_ids = args.rate_ids;
+            result = await shipstation.removeFromBatch(args.batch_id, removeData);
+            break;
+          
+          case 'get_batch_errors':
+            result = await shipstation.getBatchErrors(args.batch_id);
+            break;
+          
+          case 'process_batch':
+            const processData = {};
+            if (args.label_format) processData.label_format = args.label_format;
+            if (args.label_layout) processData.label_layout = args.label_layout;
+            result = await shipstation.processBatch(args.batch_id, processData);
             break;
           
           default:
