@@ -166,6 +166,52 @@ class ShipStationMCPServer {
               required: ['shipment_id']
             }
           },
+          {
+            name: 'get_shipment_by_external_id',
+            description: 'Get a shipment by its external ID',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                external_shipment_id: { type: 'string', description: 'The external shipment ID' }
+              },
+              required: ['external_shipment_id']
+            }
+          },
+          {
+            name: 'get_shipment_rates',
+            description: 'Get rates for an existing shipment',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                shipment_id: { type: 'string', description: 'The shipment ID' }
+              },
+              required: ['shipment_id']
+            }
+          },
+          {
+            name: 'tag_shipment',
+            description: 'Add a tag to a shipment',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                shipment_id: { type: 'string', description: 'The shipment ID' },
+                tag_name: { type: 'string', description: 'The tag name to add' }
+              },
+              required: ['shipment_id', 'tag_name']
+            }
+          },
+          {
+            name: 'untag_shipment',
+            description: 'Remove a tag from a shipment',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                shipment_id: { type: 'string', description: 'The shipment ID' },
+                tag_name: { type: 'string', description: 'The tag name to remove' }
+              },
+              required: ['shipment_id', 'tag_name']
+            }
+          },
           // Label tools
           {
             name: 'get_labels',
@@ -304,6 +350,45 @@ class ShipStationMCPServer {
               required: ['label_id']
             }
           },
+          {
+            name: 'create_label_from_rate',
+            description: 'Create a label from an existing rate',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                rate_id: { type: 'string', description: 'The rate ID' },
+                label_format: { type: 'string', description: 'Label format', enum: ['pdf', 'png', 'zpl'] },
+                label_layout: { type: 'string', description: 'Label layout' }
+              },
+              required: ['rate_id']
+            }
+          },
+          {
+            name: 'create_label_from_shipment',
+            description: 'Create a label from an existing shipment',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                shipment_id: { type: 'string', description: 'The shipment ID' },
+                label_format: { type: 'string', description: 'Label format', enum: ['pdf', 'png', 'zpl'] },
+                label_layout: { type: 'string', description: 'Label layout' }
+              },
+              required: ['shipment_id']
+            }
+          },
+          {
+            name: 'create_return_label',
+            description: 'Create a return label for an existing label',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                label_id: { type: 'string', description: 'The original label ID' },
+                label_format: { type: 'string', description: 'Label format', enum: ['pdf', 'png', 'zpl'] },
+                label_layout: { type: 'string', description: 'Label layout' }
+              },
+              required: ['label_id']
+            }
+          },
           // Rate tools
           {
             name: 'calculate_rates',
@@ -377,6 +462,83 @@ class ShipStationMCPServer {
               required: ['shipment']
             }
           },
+          {
+            name: 'estimate_rates',
+            description: 'Estimate shipping rates with minimal address information',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                rate_options: {
+                  type: 'object',
+                  properties: {
+                    carrier_ids: { type: 'array', items: { type: 'string' }, description: 'Array of carrier IDs' }
+                  }
+                },
+                shipment: {
+                  type: 'object',
+                  required: ['ship_to', 'ship_from', 'packages'],
+                  properties: {
+                    ship_to: {
+                      type: 'object',
+                      required: ['country_code'],
+                      properties: {
+                        country_code: { type: 'string' },
+                        postal_code: { type: 'string' },
+                        city_locality: { type: 'string' },
+                        state_province: { type: 'string' }
+                      }
+                    },
+                    ship_from: {
+                      type: 'object',
+                      required: ['country_code'],
+                      properties: {
+                        country_code: { type: 'string' },
+                        postal_code: { type: 'string' },
+                        city_locality: { type: 'string' },
+                        state_province: { type: 'string' }
+                      }
+                    },
+                    packages: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          weight: {
+                            type: 'object',
+                            properties: {
+                              value: { type: 'number' },
+                              unit: { type: 'string' }
+                            }
+                          },
+                          dimensions: {
+                            type: 'object',
+                            properties: {
+                              unit: { type: 'string' },
+                              length: { type: 'number' },
+                              width: { type: 'number' },
+                              height: { type: 'number' }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              required: ['shipment']
+            }
+          },
+          {
+            name: 'get_rate_by_id',
+            description: 'Get a rate by its ID',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                rate_id: { type: 'string', description: 'The rate ID' }
+              },
+              required: ['rate_id']
+            }
+          },
           // Carrier tools
           {
             name: 'get_carriers',
@@ -400,6 +562,39 @@ class ShipStationMCPServer {
               required: ['carrier_id']
             }
           },
+          {
+            name: 'get_carrier_by_id',
+            description: 'Get a carrier by its ID',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                carrier_id: { type: 'string', description: 'The carrier ID' }
+              },
+              required: ['carrier_id']
+            }
+          },
+          {
+            name: 'get_carrier_options',
+            description: 'Get carrier-specific options',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                carrier_id: { type: 'string', description: 'The carrier ID' }
+              },
+              required: ['carrier_id']
+            }
+          },
+          {
+            name: 'get_carrier_package_types',
+            description: 'Get package types for a specific carrier',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                carrier_id: { type: 'string', description: 'The carrier ID' }
+              },
+              required: ['carrier_id']
+            }
+          },
           // Warehouse tools
           {
             name: 'get_warehouses',
@@ -410,6 +605,17 @@ class ShipStationMCPServer {
                 page: { type: 'number', description: 'Page number for pagination' },
                 page_size: { type: 'number', description: 'Number of items per page' }
               }
+            }
+          },
+          {
+            name: 'get_warehouse_by_id',
+            description: 'Get a warehouse by its ID',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                warehouse_id: { type: 'string', description: 'The warehouse ID' }
+              },
+              required: ['warehouse_id']
             }
           },
           // Inventory tools
@@ -501,6 +707,85 @@ class ShipStationMCPServer {
                 inventory_warehouse_id: { type: 'string', description: 'Warehouse ID' }
               },
               required: ['name', 'inventory_warehouse_id']
+            }
+          },
+          {
+            name: 'get_inventory_warehouse_by_id',
+            description: 'Get an inventory warehouse by its ID',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                warehouse_id: { type: 'string', description: 'The inventory warehouse ID' }
+              },
+              required: ['warehouse_id']
+            }
+          },
+          {
+            name: 'update_inventory_warehouse',
+            description: 'Update an inventory warehouse',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                warehouse_id: { type: 'string', description: 'The inventory warehouse ID' },
+                warehouse_data: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string', description: 'Warehouse name' }
+                  }
+                }
+              },
+              required: ['warehouse_id', 'warehouse_data']
+            }
+          },
+          {
+            name: 'delete_inventory_warehouse',
+            description: 'Delete an inventory warehouse',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                warehouse_id: { type: 'string', description: 'The inventory warehouse ID to delete' }
+              },
+              required: ['warehouse_id']
+            }
+          },
+          {
+            name: 'get_inventory_location_by_id',
+            description: 'Get an inventory location by its ID',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                location_id: { type: 'string', description: 'The inventory location ID' }
+              },
+              required: ['location_id']
+            }
+          },
+          {
+            name: 'update_inventory_location',
+            description: 'Update an inventory location',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                location_id: { type: 'string', description: 'The inventory location ID' },
+                location_data: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string', description: 'Location name' },
+                    inventory_warehouse_id: { type: 'string', description: 'Warehouse ID' }
+                  }
+                }
+              },
+              required: ['location_id', 'location_data']
+            }
+          },
+          {
+            name: 'delete_inventory_location',
+            description: 'Delete an inventory location',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                location_id: { type: 'string', description: 'The inventory location ID to delete' }
+              },
+              required: ['location_id']
             }
           },
           // Batch tools
@@ -731,6 +1016,22 @@ class ShipStationMCPServer {
             result = await shipstation.cancelShipment(args.shipment_id);
             break;
           
+          case 'get_shipment_by_external_id':
+            result = await shipstation.getShipmentByExternalId(args.external_shipment_id);
+            break;
+          
+          case 'get_shipment_rates':
+            result = await shipstation.getShipmentRates(args.shipment_id);
+            break;
+          
+          case 'tag_shipment':
+            result = await shipstation.tagShipment(args.shipment_id, args.tag_name);
+            break;
+          
+          case 'untag_shipment':
+            result = await shipstation.untagShipment(args.shipment_id, args.tag_name);
+            break;
+          
           case 'get_labels':
             result = await shipstation.getLabels(args || {});
             break;
@@ -751,6 +1052,27 @@ class ShipStationMCPServer {
             result = await shipstation.trackLabel(args.label_id);
             break;
           
+          case 'create_label_from_rate':
+            const rateData = {};
+            if (args.label_format) rateData.label_format = args.label_format;
+            if (args.label_layout) rateData.label_layout = args.label_layout;
+            result = await shipstation.createLabelFromRate(args.rate_id, rateData);
+            break;
+          
+          case 'create_label_from_shipment':
+            const shipmentData = {};
+            if (args.label_format) shipmentData.label_format = args.label_format;
+            if (args.label_layout) shipmentData.label_layout = args.label_layout;
+            result = await shipstation.createLabelFromShipment(args.shipment_id, shipmentData);
+            break;
+          
+          case 'create_return_label':
+            const returnData = {};
+            if (args.label_format) returnData.label_format = args.label_format;
+            if (args.label_layout) returnData.label_layout = args.label_layout;
+            result = await shipstation.createReturnLabel(args.label_id, returnData);
+            break;
+          
           case 'calculate_rates':
             // Structure the rate request properly for the API
             const rateRequest = {
@@ -758,6 +1080,18 @@ class ShipStationMCPServer {
               shipment: args.shipment
             };
             result = await shipstation.calculateRates(rateRequest);
+            break;
+          
+          case 'estimate_rates':
+            const estimateRequest = {
+              rate_options: args.rate_options || {},
+              shipment: args.shipment
+            };
+            result = await shipstation.estimateRates(estimateRequest);
+            break;
+          
+          case 'get_rate_by_id':
+            result = await shipstation.getRateById(args.rate_id);
             break;
           
           case 'get_carriers':
@@ -768,8 +1102,24 @@ class ShipStationMCPServer {
             result = await shipstation.getCarrierServices(args.carrier_id);
             break;
           
+          case 'get_carrier_by_id':
+            result = await shipstation.getCarrierById(args.carrier_id);
+            break;
+          
+          case 'get_carrier_options':
+            result = await shipstation.getCarrierOptions(args.carrier_id);
+            break;
+          
+          case 'get_carrier_package_types':
+            result = await shipstation.getCarrierPackageTypes(args.carrier_id);
+            break;
+          
           case 'get_warehouses':
             result = await shipstation.getWarehouses(args || {});
+            break;
+          
+          case 'get_warehouse_by_id':
+            result = await shipstation.getWarehouseById(args.warehouse_id);
             break;
           
           case 'get_inventory':
@@ -794,6 +1144,30 @@ class ShipStationMCPServer {
           
           case 'create_inventory_location':
             result = await shipstation.createInventoryLocation(args);
+            break;
+          
+          case 'get_inventory_warehouse_by_id':
+            result = await shipstation.getInventoryWarehouseById(args.warehouse_id);
+            break;
+          
+          case 'update_inventory_warehouse':
+            result = await shipstation.updateInventoryWarehouse(args.warehouse_id, args.warehouse_data);
+            break;
+          
+          case 'delete_inventory_warehouse':
+            result = await shipstation.deleteInventoryWarehouse(args.warehouse_id);
+            break;
+          
+          case 'get_inventory_location_by_id':
+            result = await shipstation.getInventoryLocationById(args.location_id);
+            break;
+          
+          case 'update_inventory_location':
+            result = await shipstation.updateInventoryLocation(args.location_id, args.location_data);
+            break;
+          
+          case 'delete_inventory_location':
+            result = await shipstation.deleteInventoryLocation(args.location_id);
             break;
           
           // Batch operations
