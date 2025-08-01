@@ -62,11 +62,12 @@ To use this server with an MCP-compatible AI assistant (like Claude Desktop), ad
     "shipstation": {
       "command": "docker",
       "args": [
-        "run", 
-        "--rm", 
+        "run",
+        "--rm",
         "-i",
-        "--env", "SHIPSTATION_API_KEY=your_api_key_here",
-        "shipstation-mcp"
+        "--env",
+        "SHIPSTATION_API_KEY=your_api_key_here",
+        "shipstation-api-mcp"
       ]
     }
   }
@@ -95,12 +96,12 @@ To use this server with an MCP-compatible AI assistant (like Claude Desktop), ad
 1. **Build the image first:**
    ```bash
    cd /path/to/shipstation-api-mcp
-   docker build -t shipstation-mcp .
+   docker build -t shipstation-api-mcp .
    ```
 2. Set your API key in `.env` file or pass via `--env` flag
 3. For Docker Compose: `docker-compose up shipstation-mcp`
 
-**Note**: The Docker image must be built before using it in Claude Desktop MCP configuration.
+**Note**: The Docker image must be built with the tag `shipstation-api-mcp` to match the MCP configuration above.
 
 ## Environment Variables
 
