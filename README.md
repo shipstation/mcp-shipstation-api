@@ -112,7 +112,7 @@ The MCP server provides the following tools for AI assistants:
 - `update_inventory_location` - Update inventory location
 - `delete_inventory_location` - Delete inventory location
 
-### Batch Tools
+### Batch Tools ⭐ **RECOMMENDED for Bulk Operations**
 - `get_batches` - List batches with filtering parameters
 - `create_batch` - Create a new batch for bulk label processing
 - `get_batch_by_id` - Get batch details by ID
@@ -123,6 +123,8 @@ The MCP server provides the following tools for AI assistants:
 - `remove_from_batch` - Remove items from a batch
 - `get_batch_errors` - Get validation errors for a batch
 - `process_batch` - Process a batch to create labels
+
+> **💡 Best Practice**: Use batches for creating multiple labels efficiently. Batches avoid rate limits and provide better performance than individual label creation calls.
 
 ### Manifest Tools
 - `get_manifests` - List manifests with filtering parameters

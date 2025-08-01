@@ -461,7 +461,7 @@ class ShipStationMCPServer {
           },
           {
             name: 'create_label',
-            description: 'Create a new shipping label',
+            description: 'Create a new shipping label (NOTE: For multiple labels, consider using batches for better performance)',
             inputSchema: {
               type: 'object',
               properties: {
@@ -1038,7 +1038,7 @@ class ShipStationMCPServer {
           },
           {
             name: 'create_batch',
-            description: 'Create a new batch for bulk label processing',
+            description: 'Create a new batch for bulk label processing (RECOMMENDED: Use batches for efficient bulk label creation instead of individual label calls)',
             inputSchema: {
               type: 'object',
               properties: {
@@ -1102,7 +1102,7 @@ class ShipStationMCPServer {
           },
           {
             name: 'add_to_batch',
-            description: 'Add shipments to an existing batch',
+            description: 'Add shipments to an existing batch (BEST PRACTICE: Use batches for bulk operations to avoid rate limits)',
             inputSchema: {
               type: 'object',
               properties: {
@@ -1155,7 +1155,7 @@ class ShipStationMCPServer {
           },
           {
             name: 'process_batch',
-            description: 'Process a batch to create labels for all items',
+            description: 'Process a batch to create labels for all items (RECOMMENDED: Most efficient method for creating multiple labels at once)',
             inputSchema: {
               type: 'object',
               properties: {
