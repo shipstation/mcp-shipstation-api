@@ -54,7 +54,7 @@ class ShipStationMCPServer {
           },
           {
             name: 'create_shipment',
-            description: 'Create a new shipment',
+            description: 'Create a new shipment (IMPORTANT: Use either warehouse_id OR ship_from address, not both. Prefer warehouse_id when available)',
             inputSchema: {
               type: 'object',
               properties: {
@@ -72,6 +72,7 @@ class ShipStationMCPServer {
                     notes_for_gift: { type: 'string', description: 'Gift notes' },
                     is_gift: { type: 'boolean', description: 'Indicates if the shipment is a gift', default: false },
                     validate_address: { type: 'string', description: 'Address validation option', enum: ['no_validation', 'validate_only', 'validate_and_clean'] },
+                    warehouse_id: { type: 'string', description: 'The warehouse that the shipment is being shipped from (PREFERRED: Use this instead of ship_from when shipping from a warehouse)' },
                     ship_to: {
                       type: 'object',
                       required: ['name', 'address_line1', 'city_locality', 'state_province', 'postal_code', 'country_code'],
@@ -87,6 +88,7 @@ class ShipStationMCPServer {
                     },
                     ship_from: {
                       type: 'object',
+                      description: 'Ship from address (NOTE: Cannot be used with warehouse_id - use warehouse_id when available)',
                       required: ['name', 'address_line1', 'city_locality', 'state_province', 'postal_code', 'country_code'],
                       properties: {
                         name: { type: 'string' },
@@ -214,7 +216,7 @@ class ShipStationMCPServer {
           },
           {
             name: 'create_shipments_bulk',
-            description: 'Create multiple shipments in a single API call for bulk processing',
+            description: 'Create multiple shipments in a single API call for bulk processing (IMPORTANT: Use either warehouse_id OR ship_from address per shipment, not both)',
             inputSchema: {
               type: 'object',
               properties: {
@@ -236,6 +238,7 @@ class ShipStationMCPServer {
                       notes_for_gift: { type: 'string', description: 'Gift notes' },
                       is_gift: { type: 'boolean', description: 'Indicates if the shipment is a gift', default: false },
                       validate_address: { type: 'string', description: 'Address validation option', enum: ['no_validation', 'validate_only', 'validate_and_clean'] },
+                      warehouse_id: { type: 'string', description: 'The warehouse that the shipment is being shipped from (PREFERRED: Use this instead of ship_from when shipping from a warehouse)' },
                       ship_to: {
                         type: 'object',
                         required: ['name', 'address_line1', 'city_locality', 'state_province', 'postal_code', 'country_code'],
@@ -251,6 +254,7 @@ class ShipStationMCPServer {
                       },
                       ship_from: {
                         type: 'object',
+                        description: 'Ship from address (NOTE: Cannot be used with warehouse_id - use warehouse_id when available)',
                         required: ['name', 'address_line1', 'city_locality', 'state_province', 'postal_code', 'country_code'],
                         properties: {
                           name: { type: 'string' },
@@ -312,13 +316,14 @@ class ShipStationMCPServer {
           },
           {
             name: 'update_shipment',
-            description: 'Update a shipment by its ID',
+            description: 'Update a shipment by its ID (IMPORTANT: Requires complete shipment data - partial updates not supported. Use either warehouse_id OR ship_from, not both)',
             inputSchema: {
               type: 'object',
               properties: {
                 shipment_id: { type: 'string', description: 'The shipment ID to update' },
                 shipment_data: {
                   type: 'object',
+                  description: 'Complete shipment data for update (REQUIRED: Must include all shipment fields, not just changed ones)',
                   properties: {
                     carrier_id: { type: 'string', description: 'The carrier account that is billed for the shipping charges' },
                     service_code: { type: 'string', description: 'The carrier service used to ship the package' },
@@ -327,7 +332,7 @@ class ShipStationMCPServer {
                     external_shipment_id: { type: 'string', description: 'A unique user-defined key to identify a shipment' },
                     shipment_number: { type: 'string', description: 'A non-unique user-defined number used to identify a shipment' },
                     ship_date: { type: 'string', description: 'The date that the shipment was (or will be) shipped (YYYY-MM-DD)' },
-                    warehouse_id: { type: 'string', description: 'The warehouse that the shipment is being shipped from' },
+                    warehouse_id: { type: 'string', description: 'The warehouse that the shipment is being shipped from (PREFERRED: Use this instead of ship_from when shipping from a warehouse)' },
                     is_return: { type: 'boolean', description: 'An optional indicator if the shipment is intended to be a return', default: false },
                     confirmation: { 
                       type: 'string', 
@@ -1102,7 +1107,7 @@ class ShipStationMCPServer {
           },
           {
             name: 'add_to_batch',
-            description: 'Add shipments to an existing batch (BEST PRACTICE: Use batches for bulk operations to avoid rate limits)',
+            description: 'Add shipments to an existing batch (BEST PRACTICE: Use batches for bulk operations to avoid rate limits. IMPORTANT: All shipments must have the same warehouse_id)',
             inputSchema: {
               type: 'object',
               properties: {
@@ -1110,7 +1115,7 @@ class ShipStationMCPServer {
                 shipment_ids: { 
                   type: 'array', 
                   items: { type: 'string' },
-                  description: 'Array of shipment IDs to add to the batch'
+                  description: 'Array of shipment IDs to add to the batch (NOTE: All shipments must belong to the same warehouse)'
                 },
                 rate_ids: {
                   type: 'array',
@@ -1155,7 +1160,7 @@ class ShipStationMCPServer {
           },
           {
             name: 'process_batch',
-            description: 'Process a batch to create labels for all items (RECOMMENDED: Most efficient method for creating multiple labels at once)',
+            description: 'Process a batch to create labels for all items (BEST PRACTICE: This is the most efficient method for bulk label creation - avoids rate limits and creates all labels in one operation)',
             inputSchema: {
               type: 'object',
               properties: {

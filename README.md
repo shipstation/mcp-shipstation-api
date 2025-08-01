@@ -36,7 +36,9 @@ An MCP (Model Context Protocol) server for interacting with the ShipStation API 
 
 ## MCP Integration
 
-To use this server with an MCP-compatible AI assistant (like Claude Desktop), add the following to your MCP configuration:
+To use this server with an MCP-compatible AI assistant (like Claude Desktop), add one of the following configurations:
+
+### Direct Node.js Execution
 
 ```json
 {
@@ -52,6 +54,54 @@ To use this server with an MCP-compatible AI assistant (like Claude Desktop), ad
 }
 ```
 
+### Docker Container
+
+```json
+{
+  "mcpServers": {
+    "shipstation": {
+      "command": "docker",
+      "args": [
+        "run", 
+        "--rm", 
+        "-i",
+        "--env", "SHIPSTATION_API_KEY=your_api_key_here",
+        "shipstation-mcp"
+      ]
+    }
+  }
+}
+```
+
+### Docker Compose
+
+```json
+{
+  "mcpServers": {
+    "shipstation": {
+      "command": "docker-compose",
+      "args": [
+        "run", 
+        "--rm",
+        "shipstation-mcp"
+      ],
+      "cwd": "/path/to/shipstation-api-mcp"
+    }
+  }
+}
+```
+
+**Docker Setup:**
+1. **Build the image first:**
+   ```bash
+   cd /path/to/shipstation-api-mcp
+   docker build -t shipstation-mcp .
+   ```
+2. Set your API key in `.env` file or pass via `--env` flag
+3. For Docker Compose: `docker-compose up shipstation-mcp`
+
+**Note**: The Docker image must be built before using it in Claude Desktop MCP configuration.
+
 ## Environment Variables
 
 - `SHIPSTATION_API_KEY` - Your ShipStation API key (required)
@@ -64,11 +114,11 @@ The MCP server provides the following tools for AI assistants:
 
 ### Shipment Tools
 - `get_shipments` - List shipments with optional filtering
-- `create_shipment` - Create a new shipment
+- `create_shipment` - Create a new shipment (use warehouse_id OR ship_from, not both)
 - `create_shipments_bulk` - Create multiple shipments in a single API call for bulk processing
 - `get_shipment_by_id` - Get shipment details by ID
 - `get_shipment_by_external_id` - Get shipment by external ID
-- `update_shipment` - Update a shipment by its ID
+- `update_shipment` - Update a shipment by its ID (requires complete shipment data)
 - `cancel_shipment` - Cancel a shipment
 - `get_shipment_rates` - Get rates for an existing shipment
 - `tag_shipment` - Add a tag to a shipment
@@ -119,12 +169,12 @@ The MCP server provides the following tools for AI assistants:
 - `get_batch_by_external_id` - Get batch by external batch ID
 - `update_batch` - Update batch information
 - `delete_batch` - Delete a batch
-- `add_to_batch` - Add shipments to an existing batch
+- `add_to_batch` - Add shipments to an existing batch (all shipments must have same warehouse_id)
 - `remove_from_batch` - Remove items from a batch
 - `get_batch_errors` - Get validation errors for a batch
-- `process_batch` - Process a batch to create labels
+- `process_batch` - Process a batch to create labels (BEST METHOD for bulk label creation)
 
-> **💡 Best Practice**: Use batches for creating multiple labels efficiently. Batches avoid rate limits and provide better performance than individual label creation calls.
+> **💡 Best Practice**: Use batches for creating multiple labels efficiently. The `process_batch` tool is the most efficient method for bulk label creation - it avoids rate limits and creates all labels in one operation instead of individual API calls.
 
 ### Manifest Tools
 - `get_manifests` - List manifests with filtering parameters
