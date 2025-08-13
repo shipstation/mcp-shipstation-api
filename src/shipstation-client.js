@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 class ShipStationClient {
-  constructor(apiKey) {
+  constructor(apiKey, customUrl = null) {
     this.apiKey = apiKey;
-    this.baseURL = 'https://api.shipstation.com';
+    this.baseURL = customUrl || 'https://api.shipstation.com';
     
     this.client = axios.create({
       baseURL: this.baseURL,

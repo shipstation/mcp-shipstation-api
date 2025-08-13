@@ -8,13 +8,14 @@ import ShipStationClient from './shipstation-client.js';
 dotenv.config();
 
 const SHIPSTATION_API_KEY = process.env.SHIPSTATION_API_KEY;
+const SHIPSTATION_API_URL = process.env.SHIPSTATION_API_URL;
 
 if (!SHIPSTATION_API_KEY) {
   console.error('Error: SHIPSTATION_API_KEY environment variable is required');
   process.exit(1);
 }
 
-const shipstation = new ShipStationClient(SHIPSTATION_API_KEY);
+const shipstation = new ShipStationClient(SHIPSTATION_API_KEY, SHIPSTATION_API_URL);
 
 class ShipStationMCPServer {
   constructor() {

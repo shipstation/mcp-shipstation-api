@@ -47,12 +47,15 @@ To use this server with an MCP-compatible AI assistant (like Claude Desktop), ad
       "command": "node",
       "args": ["/path/to/shipstation-api-mcp/src/mcp-server.js"],
       "env": {
-        "SHIPSTATION_API_KEY": "your_api_key_here"
+        "SHIPSTATION_API_KEY": "your_api_key_here",
+        "SHIPSTATION_API_URL": "https://custom-api.example.com"
       }
     }
   }
 }
 ```
+
+**Note:** The `SHIPSTATION_API_URL` environment variable is optional. If not provided, it defaults to the standard ShipStation API URL.
 
 ### Docker Container
 
@@ -67,6 +70,8 @@ To use this server with an MCP-compatible AI assistant (like Claude Desktop), ad
         "-i",
         "--env",
         "SHIPSTATION_API_KEY=your_api_key_here",
+        "--env",
+        "SHIPSTATION_API_URL=https://custom-api.example.com",
         "shipstation-api-mcp"
       ]
     }
@@ -106,6 +111,7 @@ To use this server with an MCP-compatible AI assistant (like Claude Desktop), ad
 ## Environment Variables
 
 - `SHIPSTATION_API_KEY` - Your ShipStation API key (required)
+- `SHIPSTATION_API_URL` - Custom ShipStation API base URL (optional, defaults to `https://api.shipstation.com`)
 
 ⚠️ **Security Note**: Never commit your `.env` file to git. The `.env` file contains sensitive API keys and should only exist locally or in secure deployment environments.
 
