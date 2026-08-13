@@ -707,64 +707,39 @@ class ShipStationMCPServer {
             inputSchema: {
               type: 'object',
               properties: {
-                rate_options: {
+                carrier_ids: { type: 'array', items: { type: 'string' }, minItems: 1, description: 'Array of carrier IDs to get estimates from' },
+                from_country_code: { type: 'string', description: 'Origin country code (e.g. US)' },
+                from_postal_code: { type: 'string', description: 'Origin postal code' },
+                from_city_locality: { type: 'string', description: 'Origin city' },
+                from_state_province: { type: 'string', description: 'Origin state/province' },
+                to_country_code: { type: 'string', description: 'Destination country code (e.g. US)' },
+                to_postal_code: { type: 'string', description: 'Destination postal code' },
+                to_city_locality: { type: 'string', description: 'Destination city' },
+                to_state_province: { type: 'string', description: 'Destination state/province' },
+                weight: {
                   type: 'object',
+                  required: ['value', 'unit'],
                   properties: {
-                    carrier_ids: { type: 'array', items: { type: 'string' }, description: 'Array of carrier IDs' }
-                  }
+                    value: { type: 'number' },
+                    unit: { type: 'string', description: 'pound, ounce, gram, or kilogram' }
+                  },
+                  description: 'The weight of the package'
                 },
-                shipment: {
+                dimensions: {
                   type: 'object',
-                  required: ['ship_to', 'ship_from', 'packages'],
                   properties: {
-                    ship_to: {
-                      type: 'object',
-                      required: ['country_code'],
-                      properties: {
-                        country_code: { type: 'string' },
-                        postal_code: { type: 'string' },
-                        city_locality: { type: 'string' },
-                        state_province: { type: 'string' }
-                      }
-                    },
-                    ship_from: {
-                      type: 'object',
-                      required: ['country_code'],
-                      properties: {
-                        country_code: { type: 'string' },
-                        postal_code: { type: 'string' },
-                        city_locality: { type: 'string' },
-                        state_province: { type: 'string' }
-                      }
-                    },
-                    packages: {
-                      type: 'array',
-                      items: {
-                        type: 'object',
-                        properties: {
-                          weight: {
-                            type: 'object',
-                            properties: {
-                              value: { type: 'number' },
-                              unit: { type: 'string' }
-                            }
-                          },
-                          dimensions: {
-                            type: 'object',
-                            properties: {
-                              unit: { type: 'string' },
-                              length: { type: 'number' },
-                              width: { type: 'number' },
-                              height: { type: 'number' }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
+                    unit: { type: 'string', description: 'inch or centimeter' },
+                    length: { type: 'number' },
+                    width: { type: 'number' },
+                    height: { type: 'number' }
+                  },
+                  description: 'The dimensions of the package'
+                },
+                confirmation: { type: 'string', description: 'Delivery confirmation type' },
+                address_residential_indicator: { type: 'string', enum: ['unknown', 'yes', 'no'], description: 'Whether the destination is residential' },
+                ship_date: { type: 'string', description: 'Ship date (ISO 8601)' }
               },
-              required: ['shipment']
+              required: ['carrier_ids', 'from_country_code', 'from_postal_code', 'from_city_locality', 'from_state_province', 'to_country_code', 'to_postal_code', 'to_city_locality', 'to_state_province', 'weight', 'ship_date']
             }
           },
           {
@@ -1334,11 +1309,7 @@ class ShipStationMCPServer {
             break;
           
           case 'estimate_rates':
-            const estimateRequest = {
-              rate_options: args.rate_options || {},
-              shipment: args.shipment
-            };
-            result = await shipstation.estimateRates(estimateRequest);
+            result = await shipstation.estimateRates(args);
             break;
           
           case 'get_rate_by_id':
