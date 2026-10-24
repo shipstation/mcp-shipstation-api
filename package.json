@@ -14,7 +14,7 @@
     "test:watch": "nodemon --exec \"npm test\" --watch tests --watch src"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.17.0",
+    "@modelcontextprotocol/sdk": "1.31.0",
     "axios": "^1.6.0",
     "csv-parser": "^3.2.0",
     "dotenv": "^16.3.1"
